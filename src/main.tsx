@@ -2,17 +2,17 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import { RouterProvider } from 'react-router-dom';
-import { setupListeners } from '@reduxjs/toolkit/query';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { router } from './routes';
-
-setupListeners(store.dispatch);
+import { FavouritesProvider } from './providers/crypto-favourites';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <FavouritesProvider>
+        <RouterProvider router={router} />
+      </FavouritesProvider>
     </Provider>
   </StrictMode>
 );
