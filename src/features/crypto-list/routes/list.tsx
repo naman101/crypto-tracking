@@ -41,11 +41,13 @@ const columns = (pricingData: Record<string, string>) => [
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         Rank
-        {column.getIsSorted() === 'asc' ? (
-          <ChevronUpIcon className="ml-2 h-4 w-4" />
-        ) : (
-          <ChevronDownIcon className="ml-2 h-4 w-4" />
-        )}
+        {column.getIsSorted() ? (
+          column.getIsSorted() === 'asc' ? (
+            <ChevronUpIcon className="ml-2 h-4 w-4" />
+          ) : (
+            <ChevronDownIcon className="ml-2 h-4 w-4" />
+          )
+        ) : null}
       </Button>
     ),
   }),
@@ -58,11 +60,13 @@ const columns = (pricingData: Record<string, string>) => [
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         Currency
-        {column.getIsSorted() === 'asc' ? (
-          <ChevronUpIcon className="ml-2 h-4 w-4" />
-        ) : (
-          <ChevronDownIcon className="ml-2 h-4 w-4" />
-        )}
+        {column.getIsSorted() ? (
+          column.getIsSorted() === 'asc' ? (
+            <ChevronUpIcon className="ml-2 h-4 w-4" />
+          ) : (
+            <ChevronDownIcon className="ml-2 h-4 w-4" />
+          )
+        ) : null}
       </Button>
     ),
     cell: ({
@@ -85,11 +89,13 @@ const columns = (pricingData: Record<string, string>) => [
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         Name
-        {column.getIsSorted() === 'asc' ? (
-          <ChevronUpIcon className="ml-2 h-4 w-4" />
-        ) : (
-          <ChevronDownIcon className="ml-2 h-4 w-4" />
-        )}
+        {column.getIsSorted() ? (
+          column.getIsSorted() === 'asc' ? (
+            <ChevronUpIcon className="ml-2 h-4 w-4" />
+          ) : (
+            <ChevronDownIcon className="ml-2 h-4 w-4" />
+          )
+        ) : null}
       </Button>
     ),
   }),
