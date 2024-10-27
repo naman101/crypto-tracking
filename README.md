@@ -1,6 +1,6 @@
 # Crypto Tracking App
 
-A simple scalable app to display the top 100 crypto currencies and track their realtime prices
+A simple scalable app build to display the top 100 crypto currencies and track their realtime prices
 
 ## Application Overview
 
@@ -11,6 +11,12 @@ This app performs the following basic functionalities:
 - Search for a particular currency
 - Mark any currency as their favourite which persists across sessions using local storage
 - The user can open details page of any of the currencies to view its daily average in the last 30 days
+
+This app is built on top of the following core stack:
+
+- [ReactJS](https://react.dev/): For client side rendereing of the application
+- [React-Router](https://reactrouter.com/en/main): For handling routes and navigation
+- [Typescript](https://www.typescriptlang.org/): For a strongly typed language
 
 ## Get Started
 
