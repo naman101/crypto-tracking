@@ -46,7 +46,7 @@ export function HistoryChart({
           <ChartContainer config={chartConfig}>
             <AreaChart accessibilityLayer data={chartData}>
               <CartesianGrid vertical={false} />
-              <XAxis dataKey="date" hide />
+              <XAxis dataKey="time" hide />
               <YAxis
                 hide
                 axisLine={false}
