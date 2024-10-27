@@ -7,6 +7,13 @@ import { getLocaleCurrency } from '@/utils/numbers';
 import { FavouritesToggle } from '../components/favourites-toggle';
 import { useCryptoPricing } from '../hooks/useCryptoPricing';
 import { LoadingSpinner } from '../components/loading-spinner';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 const today = new Date();
 
@@ -15,8 +22,8 @@ thirtyDaysAgo.setDate(today.getDate() - 30);
 
 function DetailItem({ header, body }: { header: ReactNode; body: ReactNode }) {
   return (
-    <div className="space-y-1 col-span-1">
-      <div className="font-semibold">{header}</div>
+    <div className="flex justify-between">
+      <div className="font-semibold text-gray-500">{header}</div>
       <div className="font-medium">{body}</div>
     </div>
   );
@@ -37,51 +44,50 @@ export function Details() {
 
   if (assetId) {
     return (
-      <div className="space-y-3 md:space-y-4 lg:space-y-6">
-        <h1 className="flex gap-x-0.5 items-center">
-          <span className="text-3xl font-bold underline ">
-            {assetDetails?.name || assetId}
-          </span>
-          <FavouritesToggle assetId={assetId} />
-        </h1>
+      <div className="grid grid-cols-4 gap-3 md:gap-4 lg:gap-6 items-start">
+        <Card className="col-span-4 lg:col-span-1 min-h-[100px]">
+          {assetDetailsLoading ? (
+            <div className="flex justify-center w-full">
+              <LoadingSpinner />
+            </div>
+          ) : assetDetails ? (
+            <>
+              <CardHeader>
+                <CardTitle className="flex gap-x-0.5 items-center">
+                  {assetDetails.name}({assetDetails.symbol}){' '}
+                  <FavouritesToggle assetId={assetId} />
+                </CardTitle>
+                <CardDescription>
+                  {getLocaleCurrency(
+                    prices[assetDetails.id] || assetDetails.priceUsd
+                  )}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <DetailItem header="Rank" body={assetDetails.rank} />
+                <DetailItem
+                  header="Supply"
+                  body={parseFloat(assetDetails.supply).toFixed(2)}
+                />
+                <DetailItem
+                  header="Market Cap"
+                  body={getLocaleCurrency(assetDetails.marketCapUsd)}
+                />
+                <DetailItem
+                  header="Volume Used(24 Hrs)"
+                  body={parseFloat(assetDetails.volumeUsd24Hr).toFixed(4)}
+                />
+              </CardContent>
+            </>
+          ) : null}
+        </Card>
         {assetDetailsLoading ? (
           <LoadingSpinner />
         ) : assetDetails ? (
-          <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 border shadow-md rounded-sm py-3 px-2 text-sm">
-              <DetailItem header="Rank" body={assetDetails.rank} />
-              <DetailItem
-                header="Currency"
-                body={
-                  <>
-                    {assetDetails.name}({assetDetails.symbol})
-                  </>
-                }
-              />
-              <DetailItem
-                header="Price"
-                body={getLocaleCurrency(
-                  prices[assetDetails.id] || assetDetails.priceUsd
-                )}
-              />
-              <DetailItem
-                header="Supply"
-                body={parseFloat(assetDetails.supply).toFixed(2)}
-              />
-              <DetailItem
-                header="Market Cap"
-                body={getLocaleCurrency(assetDetails.marketCapUsd)}
-              />
-              <DetailItem
-                header="Volume Used(24 Hrs)"
-                body={parseFloat(assetDetails.volumeUsd24Hr).toFixed(4)}
-              />
-            </div>
-            <HistoryChart
-              chartData={assetHistory}
-              isLoading={assetHistoryLoading}
-            />
-          </>
+          <HistoryChart
+            chartData={assetHistory}
+            isLoading={assetHistoryLoading}
+          />
         ) : null}
       </div>
     );

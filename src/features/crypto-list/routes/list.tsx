@@ -6,6 +6,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  SortDirection,
   SortingState,
   useReactTable,
 } from '@tanstack/react-table';
@@ -17,16 +18,29 @@ import { useCryptoPricing } from '../hooks/useCryptoPricing';
 import { useParsedSearchParams } from '@/hooks';
 import { Link } from 'react-router-dom';
 import { getLocaleCurrency } from '@/utils/numbers';
-import { ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons';
 import { FavouritesToggle } from '../components/favourites-toggle';
 import { Input } from '@/components/ui/input';
 import { LoadingSpinner } from '../components/loading-spinner';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
 // Helper for defining columns in the assets table
 const columnHelper = createColumnHelper<AssetsListItem>();
 
+const sortIcons = (sorted: false | SortDirection) => (
+  <span>
+    {sorted ? (
+      sorted === 'asc' ? (
+        <ArrowUp className="ml-2 h-4 w-4" />
+      ) : (
+        <ArrowDown className="ml-2 h-4 w-4" />
+      )
+    ) : (
+      <ArrowUpDown className="ml-2 h-4 w-4" />
+    )}
+  </span>
+);
 // Column configuration for the data table
-const columns = (pricingData: Record<string, string>) => [
+const columns = [
   // Column for favorites toggle
   columnHelper.accessor('id', {
     header: '',
@@ -41,13 +55,7 @@ const columns = (pricingData: Record<string, string>) => [
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         Rank
-        {column.getIsSorted() ? (
-          column.getIsSorted() === 'asc' ? (
-            <ChevronUpIcon className="ml-2 h-4 w-4" />
-          ) : (
-            <ChevronDownIcon className="ml-2 h-4 w-4" />
-          )
-        ) : null}
+        {sortIcons(column.getIsSorted())}
       </Button>
     ),
   }),
@@ -60,13 +68,7 @@ const columns = (pricingData: Record<string, string>) => [
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         Currency
-        {column.getIsSorted() ? (
-          column.getIsSorted() === 'asc' ? (
-            <ChevronUpIcon className="ml-2 h-4 w-4" />
-          ) : (
-            <ChevronDownIcon className="ml-2 h-4 w-4" />
-          )
-        ) : null}
+        {sortIcons(column.getIsSorted())}
       </Button>
     ),
     cell: ({
@@ -75,7 +77,10 @@ const columns = (pricingData: Record<string, string>) => [
         original: { id },
       },
     }) => (
-      <Link to={id} className="hover:underline">
+      <Link
+        to={id}
+        className="hover:text-blue-400 font-medium hover:font-semibold"
+      >
         {getValue()}
       </Link>
     ),
@@ -89,13 +94,7 @@ const columns = (pricingData: Record<string, string>) => [
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         Name
-        {column.getIsSorted() ? (
-          column.getIsSorted() === 'asc' ? (
-            <ChevronUpIcon className="ml-2 h-4 w-4" />
-          ) : (
-            <ChevronDownIcon className="ml-2 h-4 w-4" />
-          )
-        ) : null}
+        {sortIcons(column.getIsSorted())}
       </Button>
     ),
   }),
@@ -103,8 +102,8 @@ const columns = (pricingData: Record<string, string>) => [
   // Column for asset price with currency formatting
   columnHelper.accessor('priceUsd', {
     header: 'Price',
-    cell: ({ getValue, row }) => {
-      const priceValue = pricingData[row.original.id] || getValue();
+    cell: ({ getValue }) => {
+      const priceValue = getValue();
       return getLocaleCurrency(priceValue);
     },
   }),
@@ -144,24 +143,46 @@ export function List() {
   const prices = useCryptoPricing({
     assets: visibleRows, // Updates visible assets for price lookup
   });
+  const stringifiedPricing = useMemo(() => {
+    return Object.entries(prices)
+      .map(([key, value]) => `${key}_${value}`)
+      .join('/');
+  }, [prices]);
 
   // Memoize table data for efficiency
-  const tableData = useMemo(() => (Array.isArray(data) ? data : []), [data]);
+  const tableData = useMemo(() => {
+    const parsedData: Record<string, string> = {};
+    stringifiedPricing.split('/').forEach(value => {
+      const [key, price] = value.split('_');
+      parsedData[key] = price;
+    });
+
+    return Array.isArray(data)
+      ? data.map(value => ({
+          ...value,
+          ...(parsedData[value.id]
+            ? { priceUsd: parsedData[value.id] }
+            : { priceUsd: value.priceUsd }),
+        }))
+      : [];
+  }, [data, stringifiedPricing]);
 
   // Initialize table instance with sorting, filtering, and pagination
   const tableInstance = useReactTable({
     data: tableData,
-    columns: columns(prices),
+    columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    getRowId: row => row.id,
     state: {
       sorting,
       columnFilters,
     },
+    autoResetPageIndex: false,
   });
 
   // Track visible rows for dynamic data updates
@@ -177,18 +198,19 @@ export function List() {
 
   // Update search and sorting params in URL when state changes
   useEffect(() => {
+    tableInstance.setPageIndex(0);
     setSearchParams({
       sort: sorting.map(
         (state): `${string}.${boolean}` => `${state.id}.${state.desc}`
       ),
       search: (columnFilters?.[0]?.value || undefined) as string | undefined,
     });
-  }, [sorting, setSearchParams, columnFilters]);
+  }, [sorting, setSearchParams, columnFilters, tableInstance]);
 
   // Render the table and search input
   return (
-    <div className="w-full mx-auto lg:w-3/4 xl:w-3/5 space-y-4">
-      <h1 className="font-bold text-3xl">Crypto Currency Tracker</h1>
+    <div className="w-full mx-auto lg:w-3/4 xl:w-3/5 space-y-2 lg:space-y-4">
+      <h1 className="font-bold text-xl">Prices</h1>
       {isLoading ? (
         <LoadingSpinner />
       ) : (

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useFavourites } from '@/providers/crypto-favourites';
-import { HeartFilledIcon, HeartIcon } from '@radix-ui/react-icons';
+import { Heart } from 'lucide-react';
 
 export function FavouritesToggle({ assetId }: { assetId: string }) {
   const { favourites, toggleFavourite } = useFavourites();
@@ -13,9 +13,9 @@ export function FavouritesToggle({ assetId }: { assetId: string }) {
       aria-checked={isIncluded}
     >
       {isIncluded ? (
-        <HeartFilledIcon className="text-red-500" />
+        <Heart fill="#f87171" className="text-red-600" />
       ) : (
-        <HeartIcon />
+        <Heart />
       )}
     </Button>
   );

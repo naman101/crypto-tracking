@@ -32,21 +32,21 @@ export function HistoryChart({
   isLoading: boolean;
 }) {
   return (
-    <Card>
+    <Card className="col-span-4 lg:col-span-3">
       <CardHeader>
         <CardTitle>Price History</CardTitle>
         <CardDescription>
           Showing history of the price in the last 30 days
         </CardDescription>
       </CardHeader>
-      <CardContent className="md:w-3/4 lg:w-3/5 mx-auto">
+      <CardContent className="md:w-3/4 mx-auto">
         {isLoading ? (
           <LoadingSpinner />
         ) : chartData ? (
           <ChartContainer config={chartConfig}>
             <AreaChart accessibilityLayer data={chartData}>
               <CartesianGrid vertical={false} />
-              <XAxis dataKey="time" hide />
+              <XAxis dataKey="date" hide />
               <YAxis
                 hide
                 axisLine={false}

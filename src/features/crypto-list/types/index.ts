@@ -15,4 +15,5 @@ export interface AssetsListItem {
 export interface AssetHistory {
   priceUsd: string;
   time: number;
+  date: string;
 }
