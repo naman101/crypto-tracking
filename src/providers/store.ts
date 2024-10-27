@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { assetsApi } from './features/crypto-list';
+import { assetsApi } from '../features/crypto-list';
 import { setupListeners } from '@reduxjs/toolkit/query';
 
 export const store = configureStore({
